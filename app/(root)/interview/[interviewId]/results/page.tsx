@@ -25,12 +25,21 @@ interface Feedback {
   createdAt?: string;
 }
 
-const ResultsPage = ({ params }: { params: { interviewId: string } }) => {
+interface ResultsPageProps {
+  params: { interviewId: string };
+}
+
+const ResultsPage = async ({ params }: ResultsPageProps) => {
+  const { interviewId } = params;
+  // Move all hooks and logic into a client component
+  return <ResultsClient interviewId={interviewId} />;
+};
+
+function ResultsClient({ interviewId }: { interviewId: string }) {
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [deleted, setDeleted] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const { interviewId } = params;
 
   useEffect(() => {
     const fetchFeedback = async () => {
@@ -203,6 +212,6 @@ const ResultsPage = ({ params }: { params: { interviewId: string } }) => {
       )}
     </div>
   );
-};
+}
 
 export default ResultsPage; 
