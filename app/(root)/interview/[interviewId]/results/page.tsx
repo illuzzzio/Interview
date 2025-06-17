@@ -25,13 +25,7 @@ interface Feedback {
   createdAt?: string;
 }
 
-interface ResultsPageProps {
-  params: {
-    interviewId: string;
-  };
-}
-
-const ResultsPage = ({ params }: ResultsPageProps) => {
+const ResultsPage = ({ params }: any) => {
   const { interviewId } = params;
   // Move all hooks and logic into a client component
   return <ResultsClient interviewId={interviewId} />;
