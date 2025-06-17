@@ -29,7 +29,7 @@ interface ResultsPageProps {
   params: { interviewId: string };
 }
 
-const ResultsPage = async ({ params }: ResultsPageProps) => {
+const ResultsPage = ({ params }: ResultsPageProps) => {
   const { interviewId } = params;
   // Move all hooks and logic into a client component
   return <ResultsClient interviewId={interviewId} />;
