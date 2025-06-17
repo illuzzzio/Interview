@@ -9,6 +9,17 @@ const creditPacks = [
   { credits: 1000, price: 599 },
 ];
 
+// Razorpay script loader
+function loadRazorpayScript() {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 const BuyCreditsPage: React.FC = () => {
   const [loading, setLoading] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -16,18 +27,66 @@ const BuyCreditsPage: React.FC = () => {
   const handleBuy = async (credits: number) => {
     setLoading(credits);
     setError(null);
+    const price = creditPacks.find((p) => p.credits === credits)?.price;
+    if (!price) {
+      setError("Invalid credit pack.");
+      setLoading(null);
+      return;
+    }
+    const res = await loadRazorpayScript();
+    if (!res) {
+      setError("Failed to load Razorpay SDK. Please try again.");
+      setLoading(null);
+      return;
+    }
     try {
-      const res = await fetch("/api/stripe/create-checkout-session", {
+      const response = await fetch("/api/razorpay/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credits }),
+        body: JSON.stringify({ credits, amount: price }),
       });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setError(data.error || "Failed to create checkout session.");
+      const data = await response.json();
+      if (!data.order) {
+        setError(data.error || "Failed to create Razorpay order.");
+        setLoading(null);
+        return;
       }
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: data.order.amount,
+        currency: data.order.currency,
+        name: "EzzHire Credits",
+        description: `${credits} Credits`,
+        order_id: data.order.id,
+        handler: async function (response: any) {
+          try {
+            // Verify the payment
+            const verifyResponse = await fetch('/api/razorpay/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+
+            const verifyData = await verifyResponse.json();
+            if (verifyData.verified) {
+              window.location.href = "/buy-credits?success=1";
+            } else {
+              setError("Payment verification failed. Please contact support.");
+            }
+          } catch (error) {
+            setError("Failed to verify payment. Please contact support.");
+          }
+        },
+        prefill: {},
+        theme: { color: "#22c55e" },
+      };
+      // @ts-ignore
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

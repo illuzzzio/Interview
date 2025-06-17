@@ -32,11 +32,11 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.56.4",
     "sonner": "^2.0.3",
-    "stripe": "^12.18.0",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.177.0",
-    "zod": "^3.25.64"
+    "zod": "^3.25.64",
+    "razorpay": "^2.8.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
