@@ -40,19 +40,30 @@ const BuyCreditsPage: React.FC = () => {
       return;
     }
     try {
+      console.log('Creating order with:', { credits, amount: price });
       const response = await fetch("/api/razorpay/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credits, amount: price }),
       });
       const data = await response.json();
+      console.log('Order response:', data);
+      
       if (!data.order) {
         setError(data.error || "Failed to create Razorpay order.");
         setLoading(null);
         return;
       }
+
+      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+        console.error('Razorpay key ID is missing');
+        setError("Payment configuration error. Please contact support.");
+        setLoading(null);
+        return;
+      }
+
       const options: RazorpayOptions = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: data.order.amount,
         currency: data.order.currency,
         name: "EzzHire Credits",
@@ -60,6 +71,7 @@ const BuyCreditsPage: React.FC = () => {
         order_id: data.order.id,
         handler: async function (response: RazorpayResponse) {
           try {
+            console.log('Payment response:', response);
             // Verify the payment
             const verifyResponse = await fetch('/api/razorpay/verify', {
               method: 'POST',
@@ -72,21 +84,26 @@ const BuyCreditsPage: React.FC = () => {
             });
 
             const verifyData = await verifyResponse.json();
+            console.log('Verification response:', verifyData);
+            
             if (verifyData.verified) {
               window.location.href = "/buy-credits?success=1";
             } else {
               setError("Payment verification failed. Please contact support.");
             }
           } catch (error) {
+            console.error('Payment verification error:', error);
             setError("Failed to verify payment. Please contact support.");
           }
         },
         prefill: {},
         theme: { color: "#22c55e" },
       };
+      console.log('Opening Razorpay with options:', options);
       const rzp = new window.Razorpay(options);
       rzp.open();
-    } catch {
+    } catch (error) {
+      console.error('Error in handleBuy:', error);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(null);
