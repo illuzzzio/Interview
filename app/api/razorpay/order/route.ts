@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         currency: 'INR',
         receipt: `receipt_${Date.now()}`,
         payment_capture: true,
-        notes: { credits: String(credits) },
+        notes: { credits: String(credits) }
       });
       console.log('Razorpay order created:', order);
 

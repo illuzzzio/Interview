@@ -91,15 +91,14 @@ const BuyCreditsPage: React.FC = () => {
               }),
             });
 
-            if (!verifyResponse.ok) {
-              const errorText = await verifyResponse.text();
-              console.error('Verification failed:', errorText);
-              setError("Payment verification failed. Please contact support.");
-              return;
-            }
-
             const verifyData = await verifyResponse.json();
             console.log('Verification response:', verifyData);
+
+            if (!verifyResponse.ok) {
+              console.error('Verification failed:', verifyData);
+              setError(verifyData.error || "Payment verification failed. Please contact support.");
+              return;
+            }
             
             if (verifyData.verified) {
               window.location.href = "/buy-credits?success=1";
@@ -113,6 +112,11 @@ const BuyCreditsPage: React.FC = () => {
         },
         prefill: {},
         theme: { color: "#22c55e" },
+        modal: {
+          ondismiss: function() {
+            setLoading(null);
+          }
+        }
       };
       console.log('Opening Razorpay with options:', options);
       const rzp = new (window as any).Razorpay(options);
