@@ -46,7 +46,7 @@ const Page: React.FC = async () => {
         <div className="interviews-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {dummyInterviews.length > 0 ? (
             dummyInterviews.map((interview) => (
-              <InterviewCard key={interview.id} interviewId={interview.id} {...interview} />
+              <InterviewCard key={interview.id} {...interview} />
             ))
           ) : (
             <p className="text-white/80">You have not taken any interview yet.</p>
@@ -58,7 +58,7 @@ const Page: React.FC = async () => {
         <h2 className="text-2xl font-semibold text-white">Take an Interview</h2>
         <div className="interviews-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {dummyInterviews.map((interview) => (
-            <InterviewCard key={interview.id} interviewId={interview.id} {...interview} />
+            <InterviewCard key={interview.id} {...interview} />
           ))}
         </div>
       </section>

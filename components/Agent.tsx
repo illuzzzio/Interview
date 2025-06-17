@@ -117,7 +117,7 @@ const Agent = ({
     if (callStatus === CallStatus.FINISHED) {
       handleGenerateFeedback();
     }
-  }, [messages, callStatus, interviewId, router, userId, type, level]);
+  }, [messages, callStatus, interviewId, router, userId, interviewType, level]);
 
   const handleCall = async () => {
     setError(null);

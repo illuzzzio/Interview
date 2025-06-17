@@ -28,7 +28,7 @@ const BuyCreditsPage: React.FC = () => {
       } else {
         setError(data.error || "Failed to create checkout session.");
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(null);
