@@ -1,6 +1,4 @@
-// app/results/[interviewId]/ResultsClient.tsx
-
-"use client";
+'use client';
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -61,10 +59,12 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
     const doc = new jsPDF();
     doc.setFillColor(0, 0, 0);
     doc.rect(0, 0, 210, 297, 'F');
+
     doc.setFontSize(24);
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.text("Interview Feedback Report", 105, 20, { align: "center" });
+
     doc.setFontSize(13);
     doc.setTextColor(200, 200, 255);
     let y = 35;
@@ -83,14 +83,17 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
     doc.text(`Engagement Level: ${feedback.engagementLevel ?? '-'}`, 14, y);
     y += 8;
     doc.text(`Avg. Response Length: ${feedback.responseLength ?? '-'} chars`, 14, y);
+
     y += 10;
     doc.setDrawColor(255, 255, 255);
     doc.line(14, y, 196, y);
     y += 8;
+
     doc.setFontSize(16);
     doc.setTextColor(255, 255, 255);
     doc.text("Scores:", 14, y);
     y += 10;
+
     feedback.categoryScores?.forEach((cat: CategoryScore) => {
       doc.setFontSize(13);
       doc.setTextColor(255, 255, 255);
@@ -102,18 +105,20 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
       doc.text(`Comment: ${cat.comment || '-'}`, 100, y);
       y += 8;
     });
+
     doc.setTextColor(255, 255, 255);
     y += 6;
-    doc.setDrawColor(255, 255, 255);
     doc.line(14, y, 196, y);
     y += 10;
+
     doc.setFontSize(15);
     doc.text("Total Score:", 14, y);
     doc.setFontSize(15);
     doc.setTextColor(0, 255, 200);
     doc.text(`${feedback.totalScore}/100`, 50, y);
-    doc.setTextColor(255, 255, 255);
+
     y += 12;
+    doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
     doc.text("Assessment:", 14, y);
     y += 8;
@@ -121,6 +126,7 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
     const assessmentLines = doc.splitTextToSize(feedback.finalAssessment || "-", 180);
     doc.text(assessmentLines, 14, y);
     y += assessmentLines.length * 7 + 4;
+
     doc.setFontSize(14);
     doc.text("Strengths:", 14, y);
     y += 8;
@@ -128,6 +134,7 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
     const strengthsLines = doc.splitTextToSize((feedback.strengths || []).join(", ") || "-", 180);
     doc.text(strengthsLines, 14, y);
     y += strengthsLines.length * 7 + 4;
+
     doc.setFontSize(14);
     doc.text("Areas for Improvement:", 14, y);
     y += 8;
@@ -135,11 +142,14 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
     const improvementLines = doc.splitTextToSize((feedback.areasForImprovement || []).join(", ") || "-", 180);
     doc.text(improvementLines, 14, y);
     y += improvementLines.length * 7 + 4;
+
     if (feedback.totalScore === 0) {
       doc.setFontSize(16);
       doc.setTextColor(255, 0, 0);
       doc.text("Try next time with more preparation!", 14, y);
     }
+
+    // Footer
     doc.setFontSize(13);
     doc.setTextColor(255, 255, 255);
     doc.text("Powered by ", 14, 285);
@@ -147,7 +157,9 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
     doc.text("EzzHire", 50, 285);
     doc.setTextColor(200, 200, 255);
     doc.text("App made by Pranjal Malhotra", 14, 292);
+
     doc.save(`interview-feedback-${interviewId}.pdf`);
+
     try {
       const res = await fetch(`/api/interview/${interviewId}/feedback`, { method: 'DELETE' });
       const data = await res.json();
@@ -167,7 +179,9 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
       {loading ? (
         <div>Loading feedback...</div>
       ) : deleted ? (
-        <div className="text-green-400 font-bold text-xl text-center">Feedback deleted after download.</div>
+        <div className="text-green-400 font-bold text-xl text-center">
+          Feedback deleted after download.
+        </div>
       ) : feedback ? (
         <>
           <h2 className="text-2xl font-bold mb-4">Interview Results</h2>
@@ -178,7 +192,7 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
           <div className="mb-2">
             <span className="font-semibold">Category Scores:</span>
             <ul className="ml-4 mt-2">
-              {feedback.categoryScores?.map((cat: CategoryScore, idx: number) => (
+              {feedback.categoryScores?.map((cat, idx) => (
                 <li key={idx} className="mb-1">
                   <span className="font-bold text-green-700">{cat.name}:</span>{" "}
                   <span className="text-black">{cat.score}/100</span>{" "}
