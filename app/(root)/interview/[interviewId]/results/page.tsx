@@ -1,15 +1,35 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import jsPDF from "jspdf";
 
+interface CategoryScore {
+  name: string;
+  score: number;
+  comment?: string;
+}
+
+interface Feedback {
+  totalScore: number;
+  finalAssessment: string;
+  strengths?: string[];
+  areasForImprovement?: string[];
+  categoryScores?: CategoryScore[];
+  type?: string;
+  level?: string;
+  numQuestionsAnswered?: number;
+  numQuestionsAsked?: number;
+  engagementLevel?: string;
+  responseLength?: number;
+  createdAt?: string;
+}
+
 const ResultsPage = ({ params }: { params: { interviewId: string } }) => {
   const [loading, setLoading] = useState(true);
-  const [feedback, setFeedback] = useState<any>(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [deleted, setDeleted] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const router = useRouter();
   const { interviewId } = params;
 
   useEffect(() => {
@@ -51,7 +71,7 @@ const ResultsPage = ({ params }: { params: { interviewId: string } }) => {
     let y = 35;
     doc.text(`Interview ID: ${interviewId}`, 14, y);
     y += 8;
-    doc.text(`Date: ${new Date(feedback.createdAt).toLocaleString()}`, 14, y);
+    doc.text(`Date: ${new Date(feedback.createdAt ?? "").toLocaleString()}`, 14, y);
     y += 8;
     doc.text(`Interview Type: ${feedback.type || 'Unknown'}`, 14, y);
     y += 8;
@@ -72,7 +92,7 @@ const ResultsPage = ({ params }: { params: { interviewId: string } }) => {
     doc.setTextColor(255, 255, 255);
     doc.text("Scores:", 14, y);
     y += 10;
-    feedback.categoryScores?.forEach((cat: any) => {
+    feedback.categoryScores?.forEach((cat: CategoryScore) => {
       doc.setFontSize(13);
       doc.setTextColor(255, 255, 255);
       doc.text(`${cat.name}:`, 18, y);
@@ -140,7 +160,7 @@ const ResultsPage = ({ params }: { params: { interviewId: string } }) => {
       } else {
         setDeleteError(data.error || 'Failed to delete feedback');
       }
-    } catch (err) {
+    } catch {
       setDeleteError('Failed to delete feedback');
     }
   };
@@ -161,7 +181,7 @@ const ResultsPage = ({ params }: { params: { interviewId: string } }) => {
           <div className="mb-2">
             <span className="font-semibold">Category Scores:</span>
             <ul className="ml-4 mt-2">
-              {feedback.categoryScores?.map((cat: any, idx: number) => (
+              {feedback.categoryScores?.map((cat: CategoryScore, idx: number) => (
                 <li key={idx} className="mb-1">
                   <span className="font-bold text-green-700">{cat.name}:</span> <span className="text-black">{cat.score}/100</span> <span className="text-gray-500">({cat.comment})</span>
                 </li>

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/actions/auth.action';
 import { getUserCredits, deductUserCredits } from '@/lib/actions/general.action';
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
