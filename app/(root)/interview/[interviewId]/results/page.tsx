@@ -1,11 +1,15 @@
 // app/(root)/interview/[interviewId]/results/page.tsx
 
-import React from "react";
 import ResultsClient from "./ResultsClient";
 
-const Page = async ({ params }: { params: { interviewId: string } }) => {
-  const { interviewId } = params;
+interface PageProps {
+  params: {
+    interviewId: string;
+  };
+}
 
+const Page = async ({ params }: PageProps) => {
+  const { interviewId } = params;
   return <ResultsClient interviewId={interviewId} />;
 };
 

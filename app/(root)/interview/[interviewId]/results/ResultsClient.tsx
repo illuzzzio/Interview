@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import jsPDF from "jspdf";
@@ -24,7 +25,11 @@ interface Feedback {
   createdAt?: string;
 }
 
-const ResultsClient = ({ interviewId }: { interviewId: string }) => {
+interface ResultsClientProps {
+  interviewId: string;
+}
+
+const ResultsClient: React.FC<ResultsClientProps> = ({ interviewId }) => {
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [deleted, setDeleted] = useState(false);
@@ -32,11 +37,16 @@ const ResultsClient = ({ interviewId }: { interviewId: string }) => {
 
   useEffect(() => {
     const fetchFeedback = async () => {
-      setLoading(true);
-      const res = await fetch(`/api/interview/${interviewId}/feedback`);
-      const data = await res.json();
-      setFeedback(data.feedback);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/interview/${interviewId}/feedback`);
+        const data = await res.json();
+        setFeedback(data.feedback);
+      } catch (error) {
+        console.error("Error fetching feedback:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     if (interviewId) fetchFeedback();
   }, [interviewId]);
