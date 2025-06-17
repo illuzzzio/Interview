@@ -1,5 +1,5 @@
-import ResultsClient from "@/app/(root)/interview/[interviewId]/results/ResultsClient"; // adjust path if needed
+import ResultsClient from "@/app/(root)/interview/[interviewId]/results/ResultsClient";
 
-export default function page({ params }: { params: { interviewId: string } }) {
+export default function Page({ params }: { params: { interviewId: string } }) {
   return <ResultsClient interviewId={params.interviewId} />;
 }

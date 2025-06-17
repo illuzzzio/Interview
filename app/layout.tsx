@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Mona_Sans } from "next/font/google";
 import "./globals.css";
-import Shader from "@/components/Shader";
-import { Toaster } from "sonner";
+import dynamic from "next/dynamic";
+// import { Toaster } from "sonner";
 // import BackAudio from "@/components/BackAudio";
 
-const monaSans = Mona_Sans({
-  variable: "--font-mona-sans",
-  subsets: ["latin"],
-});
-
-
+const Shader = dynamic(() => import("@/components/Shader"), { ssr: false });
 
 export const metadata: Metadata = {
   title: "EzzHire",
@@ -23,19 +17,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    
-    
     <html lang="en" className = "dark">
-      <body
-        className={`${monaSans.className} antialiased `}
-      >
+      <body className="antialiased">
         {/* <BackAudio/> */}
-
-     
         <Shader />
-
         {children}
-        <Toaster/>
+        {/* <Toaster/> */}
       </body>
     </html>
   );
