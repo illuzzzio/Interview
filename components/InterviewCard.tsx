@@ -83,18 +83,7 @@ const InterviewCard = async ({
 
         <div className="flex flex-row justify-between">
           <DisplayTechIcons techStack={techstack} />
-
-          <Button className="btn-primary">
-            <Link
-              href={
-                feedback
-                  ? `/interview/${interviewId}/feedback`
-                  : `/interview/${interviewId}`
-              }
-            >
-              {feedback ? "Check Feedback" : "View Interview"}
-            </Link>
-          </Button>
+          <span className="text-green-400 font-semibold ml-2">You can apply for these interviews</span>
         </div>
       </div>
     </div>

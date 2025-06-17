@@ -25,8 +25,9 @@ const Agent = ({
   userName,
   userId,
   interviewId,
-  feedbackId,
-  type,
+  type = 'generate',
+  level = '',
+  interviewType = '',
   questions,
 }: AgentProps) => {
   const router = useRouter();
@@ -34,6 +35,9 @@ const Agent = ({
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastMessage, setLastMessage] = useState<string>("");
+  const [startLoading, setStartLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
 
   useEffect(() => {
     const onCallStart = () => {
@@ -87,34 +91,55 @@ const Agent = ({
       setLastMessage(messages[messages.length - 1].content);
     }
 
-    const handleGenerateFeedback = async (messages: SavedMessage[]) => {
-      console.log("handleGenerateFeedback");
-
-      const { success, feedbackId: id } = await createFeedback({
-        interviewId: interviewId!,
-        userId: userId!,
-        transcript: messages,
-        feedbackId,
-      });
-
-      if (success && id) {
-        router.push(`/interview/${interviewId}/feedback`);
-      } else {
-        console.log("Error saving feedback");
-        router.push("/");
+    const handleGenerateFeedback = async () => {
+      setFeedbackLoading(true);
+      if (!interviewId || !userId) {
+        setError('Interview ID or User ID is missing. Cannot generate feedback.');
+        setFeedbackLoading(false);
+        return;
       }
+      console.log('Creating feedback with:', { interviewId, userId, transcript: messages, type: interviewType, level });
+      const result = await createFeedback({
+        interviewId,
+        userId,
+        transcript: messages,
+        type: interviewType,
+        level,
+      });
+      setFeedbackLoading(false);
+      if (!result || !result.success) {
+        setError('Failed to generate feedback. Please try again.');
+        return;
+      }
+      router.push(`/interview/feedback?interviewId=${interviewId}`);
     };
 
     if (callStatus === CallStatus.FINISHED) {
-      if (type === "generate") {
-        router.push("/");
-      } else {
-        handleGenerateFeedback(messages);
-      }
+      handleGenerateFeedback();
     }
-  }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
+  }, [messages, callStatus, interviewId, router, userId, type, level]);
 
   const handleCall = async () => {
+    setError(null);
+    setStartLoading(true);
+    // Check and deduct credits before starting interview
+    try {
+      const res = await fetch("/api/interview/start", { method: "POST" });
+      if (res.status === 402) {
+        router.push("/buy-credits");
+        return;
+      }
+      if (!res.ok) {
+        setError("Failed to start interview. Please try again.");
+        setStartLoading(false);
+        return;
+      }
+    } catch {
+      setError("Failed to start interview. Please try again.");
+      setStartLoading(false);
+      return;
+    }
+    setStartLoading(false);
     setCallStatus(CallStatus.CONNECTING);
 
     if (type === "generate") {
@@ -152,7 +177,7 @@ const Agent = ({
         <div className="card-interviewer">
           <div className="avatar">
             <Image
-              src="/ai-avatar.png"
+              src="/inter.gif"
               alt="profile-image"
               width={65}
               height={54}
@@ -167,7 +192,7 @@ const Agent = ({
         <div className="card-border">
           <div className="card-content">
             <Image
-              src="/user-avatar.png"
+              src="/rtr.png"
               alt="profile-image"
               width={539}
               height={539}
@@ -196,26 +221,16 @@ const Agent = ({
 
       <div className="w-full flex justify-center">
         {callStatus !== "ACTIVE" ? (
-          <button className="relative btn-call" onClick={() => handleCall()}>
-            <span
-              className={cn(
-                "absolute animate-ping rounded-full opacity-75",
-                callStatus !== "CONNECTING" && "hidden"
-              )}
-            />
-
-            <span className="relative">
-              {callStatus === "INACTIVE" || callStatus === "FINISHED"
-                ? "Call"
-                : ". . ."}
-            </span>
+          <button className="relative btn-call" onClick={() => handleCall()} disabled={startLoading || feedbackLoading}>
+            {startLoading ? "Starting..." : feedbackLoading ? "Generating Feedback..." : "Start Interview"}
           </button>
         ) : (
-          <button className="btn-disconnect" onClick={() => handleDisconnect()}>
-            End
+          <button className="relative btn-call bg-red-500 hover:bg-red-600" onClick={handleDisconnect}>
+            End Interview
           </button>
         )}
       </div>
+      {error && <div className="text-red-500 mt-2">{error}</div>}
     </>
   );
 };

@@ -41,6 +41,7 @@ export async function signup(params: SignUpParams) {
     await db.collection("users").doc(uid).set({
       name,
       email,
+      credits: 20, // Default credits for new users
       // profileURL,
       // resumeURL,
     });
@@ -115,6 +116,7 @@ export async function getCurrentUser(): Promise<User | null> {
 
     return {
       ...userRecord.data(),
+      credits: userRecord.data().credits ?? 0, // Ensure credits is always present
       id: userRecord.id,
     } as User;
   } catch (error) {
@@ -129,4 +131,15 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function isAuthenticated() {
   const user = await getCurrentUser();
   return !!user;
+}
+
+export async function setCurrentUserCredits(amount: number): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) return false;
+  try {
+    await db.collection("users").doc(user.id).update({ credits: amount });
+    return true;
+  } catch {
+    return false;
+  }
 }
