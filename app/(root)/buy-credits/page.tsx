@@ -46,7 +46,25 @@ const BuyCreditsPage: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credits, amount: price }),
       });
-      const data = await response.json();
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Order creation failed:', errorData);
+        setError("Failed to create order. Please try again.");
+        setLoading(null);
+        return;
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('Failed to parse response:', jsonError);
+        setError("Invalid response from server. Please try again.");
+        setLoading(null);
+        return;
+      }
+
       console.log('Order response:', data);
       
       if (!data.order) {
@@ -55,15 +73,8 @@ const BuyCreditsPage: React.FC = () => {
         return;
       }
 
-      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-        console.error('Razorpay key ID is missing');
-        setError("Payment configuration error. Please contact support.");
-        setLoading(null);
-        return;
-      }
-
       const options: RazorpayOptions = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
         amount: data.order.amount,
         currency: data.order.currency,
         name: "EzzHire Credits",
