@@ -1,4 +1,4 @@
-import ResultsClient from "@/components/ResultsClient"; // adjust path if needed
+import ResultsClient from "@/app/(root)/interview/[interviewId]/results/ResultsClient"; // adjust path if needed
 
 interface PageProps {
   params: {
