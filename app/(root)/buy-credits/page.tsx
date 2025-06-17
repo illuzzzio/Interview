@@ -47,40 +47,30 @@ const BuyCreditsPage: React.FC = () => {
         body: JSON.stringify({ credits, amount: price }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Order creation failed:', errorData);
-        setError("Failed to create order. Please try again.");
-        setLoading(null);
-        return;
-      }
-
-      let data;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        console.error('Failed to parse response:', jsonError);
-        setError("Invalid response from server. Please try again.");
-        setLoading(null);
-        return;
-      }
-
+      const data = await response.json();
       console.log('Order response:', data);
-      
+
+      if (!response.ok) {
+        console.error('Order creation failed:', data);
+        setError(data.error || "Failed to create order. Please try again.");
+        setLoading(null);
+        return;
+      }
+
       if (!data.order) {
         setError(data.error || "Failed to create Razorpay order.");
         setLoading(null);
         return;
       }
 
-      const options: RazorpayOptions = {
+      const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
         amount: data.order.amount,
         currency: data.order.currency,
         name: "EzzHire Credits",
         description: `${credits} Credits`,
         order_id: data.order.id,
-        handler: async function (response: RazorpayResponse) {
+        handler: async function (response: any) {
           try {
             console.log('Payment response:', response);
             // Verify the payment
@@ -111,7 +101,7 @@ const BuyCreditsPage: React.FC = () => {
         theme: { color: "#22c55e" },
       };
       console.log('Opening Razorpay with options:', options);
-      const rzp = new window.Razorpay(options);
+      const rzp = new (window as any).Razorpay(options);
       rzp.open();
     } catch (error) {
       console.error('Error in handleBuy:', error);
