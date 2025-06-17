@@ -26,7 +26,9 @@ interface Feedback {
 }
 
 interface ResultsPageProps {
-  params: { interviewId: string };
+  params: {
+    interviewId: string;
+  };
 }
 
 const ResultsPage = ({ params }: ResultsPageProps) => {
