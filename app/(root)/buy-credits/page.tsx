@@ -43,19 +43,23 @@ const BuyCreditsPage: React.FC = () => {
       console.log('Creating order with:', { credits, amount: price });
       const response = await fetch("/api/razorpay/order", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({ credits, amount: price }),
       });
 
-      const data = await response.json();
-      console.log('Order response:', data);
-
       if (!response.ok) {
-        console.error('Order creation failed:', data);
-        setError(data.error || "Failed to create order. Please try again.");
+        const errorText = await response.text();
+        console.error('Order creation failed:', errorText);
+        setError("Failed to create order. Please try again.");
         setLoading(null);
         return;
       }
+
+      const data = await response.json();
+      console.log('Order response:', data);
 
       if (!data.order) {
         setError(data.error || "Failed to create Razorpay order.");
@@ -76,13 +80,23 @@ const BuyCreditsPage: React.FC = () => {
             // Verify the payment
             const verifyResponse = await fetch('/api/razorpay/verify', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
               }),
             });
+
+            if (!verifyResponse.ok) {
+              const errorText = await verifyResponse.text();
+              console.error('Verification failed:', errorText);
+              setError("Payment verification failed. Please contact support.");
+              return;
+            }
 
             const verifyData = await verifyResponse.json();
             console.log('Verification response:', verifyData);
