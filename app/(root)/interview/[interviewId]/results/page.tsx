@@ -1,6 +1,4 @@
-// app/(root)/interview/[interviewId]/results/page.tsx
-
-import ResultsClient from "./ResultsClient";
+import ResultsClient from "@/components/ResultsClient"; // adjust path if needed
 
 interface PageProps {
   params: {
@@ -8,9 +6,6 @@ interface PageProps {
   };
 }
 
-const Page = async ({ params }: PageProps) => {
-  const { interviewId } = params;
-  return <ResultsClient interviewId={interviewId} />;
-};
-
-export default Page;
+export default function Page({ params }: PageProps) {
+  return <ResultsClient interviewId={params.interviewId} />;
+}
