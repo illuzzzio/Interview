@@ -80,10 +80,16 @@ export async function createFeedback(params: CreateFeedbackParams & { type?: str
     });
 
     // Calculate additional fields
-    const numQuestionsAnswered = transcript.filter((msg: any) => msg.role === 'user').length;
-    const numQuestionsAsked = transcript.filter((msg: any) => msg.role === 'system' || msg.role === 'assistant').length;
+    interface TranscriptMessage {
+      role: string;
+      content: string;
+    }
+    const numQuestionsAnswered = (transcript as TranscriptMessage[]).filter((msg: TranscriptMessage) => msg.role === 'user').length;
+    const numQuestionsAsked = (transcript as TranscriptMessage[]).filter((msg: TranscriptMessage) => msg.role === 'system' || msg.role === 'assistant').length;
     const engagementLevel = transcript.length >= 10 ? 'High' : transcript.length >= 5 ? 'Medium' : 'Low';
-    const userResponses = transcript.filter((msg: any) => msg.role === 'user').map((msg: any) => msg.content.length);
+    const userResponses = (transcript as TranscriptMessage[])
+      .filter((msg: TranscriptMessage) => msg.role === 'user')
+      .map((msg: TranscriptMessage) => msg.content.length);
     const responseLength = userResponses.length > 0 ? Math.round(userResponses.reduce((a, b) => a + b, 0) / userResponses.length) : 0;
 
     const feedback = {

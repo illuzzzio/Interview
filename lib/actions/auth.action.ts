@@ -114,9 +114,11 @@ export async function getCurrentUser(): Promise<User | null> {
       .get();
     if (!userRecord.exists) return null;
 
+    const userData = userRecord.data();
+    if (!userData) return null;
     return {
-      ...userRecord.data(),
-      credits: userRecord.data().credits ?? 0, // Ensure credits is always present
+      ...userData,
+      credits: userData.credits ?? 0, // Ensure credits is always present
       id: userRecord.id,
     } as User;
   } catch (error) {
