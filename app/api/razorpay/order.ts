@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       amount: amount * 100, // amount in paise
       currency: 'INR',
       receipt: `receipt_${Date.now()}`,
-      payment_capture: 1,
+      payment_capture: true,
       notes: { credits: String(credits) },
     });
 
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ order });
   } catch (error) {
+    console.error('Razorpay order creation error:', error);
     return NextResponse.json({ error: 'Failed to create Razorpay order' }, { status: 500 });
   }
 } 

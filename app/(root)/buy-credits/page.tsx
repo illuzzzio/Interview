@@ -51,14 +51,14 @@ const BuyCreditsPage: React.FC = () => {
         setLoading(null);
         return;
       }
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      const options: RazorpayOptions = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
         amount: data.order.amount,
         currency: data.order.currency,
         name: "EzzHire Credits",
         description: `${credits} Credits`,
         order_id: data.order.id,
-        handler: async function (response: any) {
+        handler: async function (response: RazorpayResponse) {
           try {
             // Verify the payment
             const verifyResponse = await fetch('/api/razorpay/verify', {
@@ -84,7 +84,6 @@ const BuyCreditsPage: React.FC = () => {
         prefill: {},
         theme: { color: "#22c55e" },
       };
-      // @ts-ignore
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch {
