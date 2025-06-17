@@ -1,4 +1,7 @@
+// app/results/[interviewId]/ResultsClient.tsx
+
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import jsPDF from "jspdf";
@@ -23,11 +26,6 @@ interface Feedback {
   responseLength?: number;
   createdAt?: string;
 }
-
-const ResultsPage = ({ params }: { params: { interviewId: string } }) => {
-  const { interviewId } = params;
-  return <ResultsClient interviewId={interviewId} />;
-};
 
 function ResultsClient({ interviewId }: { interviewId: string }) {
   const [loading, setLoading] = useState(true);
@@ -61,10 +59,8 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
   const handleDownloadPDF = async () => {
     if (!feedback) return;
     const doc = new jsPDF();
-    // Black background
     doc.setFillColor(0, 0, 0);
     doc.rect(0, 0, 210, 297, 'F');
-    // White shining header
     doc.setFontSize(24);
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
@@ -144,16 +140,14 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
       doc.setTextColor(255, 0, 0);
       doc.text("Try next time with more preparation!", 14, y);
     }
-    // Footer
     doc.setFontSize(13);
     doc.setTextColor(255, 255, 255);
     doc.text("Powered by ", 14, 285);
-    doc.setTextColor(34, 197, 94); // EzzHire in green
+    doc.setTextColor(34, 197, 94);
     doc.text("EzzHire", 50, 285);
     doc.setTextColor(200, 200, 255);
     doc.text("App made by Pranjal Malhotra", 14, 292);
     doc.save(`interview-feedback-${interviewId}.pdf`);
-    // After download, delete feedback
     try {
       const res = await fetch(`/api/interview/${interviewId}/feedback`, { method: 'DELETE' });
       const data = await res.json();
@@ -186,7 +180,9 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
             <ul className="ml-4 mt-2">
               {feedback.categoryScores?.map((cat: CategoryScore, idx: number) => (
                 <li key={idx} className="mb-1">
-                  <span className="font-bold text-green-700">{cat.name}:</span> <span className="text-black">{cat.score}/100</span> <span className="text-gray-500">({cat.comment})</span>
+                  <span className="font-bold text-green-700">{cat.name}:</span>{" "}
+                  <span className="text-black">{cat.score}/100</span>{" "}
+                  <span className="text-gray-500">({cat.comment})</span>
                 </li>
               ))}
             </ul>
@@ -208,4 +204,4 @@ function ResultsClient({ interviewId }: { interviewId: string }) {
   );
 }
 
-export default ResultsPage; 
+export default ResultsClient;
