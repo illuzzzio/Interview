@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import jsPDF from "jspdf";
 
@@ -25,9 +24,8 @@ interface Feedback {
   createdAt?: string;
 }
 
-const ResultsPage = ({ params }: any) => {
+const ResultsPage = ({ params }: { params: { interviewId: string } }) => {
   const { interviewId } = params;
-  // Move all hooks and logic into a client component
   return <ResultsClient interviewId={interviewId} />;
 };
 
