@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import dynamic from "next/dynamic";
-// import { Toaster } from "sonner";
+import { Toaster } from "sonner";
 // import BackAudio from "@/components/BackAudio";
 
 const Shader = dynamic(() => import("@/components/Shader"), { ssr: false });
@@ -22,7 +22,7 @@ export default function RootLayout({
         {/* <BackAudio/> */}
         <Shader />
         {children}
-        {/* <Toaster/> */}
+        <Toaster/>
       </body>
     </html>
   );

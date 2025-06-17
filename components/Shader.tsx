@@ -4,14 +4,13 @@ import React, { useState, useRef, Suspense, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Points, PointMaterial } from '@react-three/drei';
-// @ts-expect-error maath types are not defined properly
-import * as random from 'maath/random/dist/maath-random.esm';
+import { inSphere } from 'maath/random';
 
-const StarBackground = (props: React.ComponentProps<'group'>) => {
+const StarBackground = (props: React.ComponentProps<any>) => {
   const ref = useRef<THREE.Group>(null!);
   const [radius, setRadius] = useState(0.5); // ✅ Start small
   const [sphere, setSphere] = useState<Float32Array>(
-    () => random.inSphere(new Float32Array(5000 * 3), { radius: 0.5 })
+    () => inSphere(new Float32Array(5000 * 3), { radius: 0.5 }) as Float32Array
   );
 
   const expanding = useRef(false);
@@ -31,7 +30,7 @@ const StarBackground = (props: React.ComponentProps<'group'>) => {
 //     sound.loop = false; // ✅ Play only once
 //     sound.volume = 1;
 //     soundRef.current = sound;
-
+//
 //     sound.play().catch((e) => {
 //       console.warn('Audio not working', e);
 //     });
@@ -79,7 +78,7 @@ const StarBackground = (props: React.ComponentProps<'group'>) => {
 
   // Update stars when radius changes
   useEffect(() => {
-    const newSphere = random.inSphere(new Float32Array(5000 * 3), { radius });
+    const newSphere = inSphere(new Float32Array(5000 * 3), { radius }) as Float32Array;
     setSphere(newSphere);
   }, [radius]);
 
@@ -111,7 +110,7 @@ const StarBackground = (props: React.ComponentProps<'group'>) => {
   return (
     <>
      {/* <audio autoPlay controls src="/sounds/expand.mp3"></audio> */}
-     <group ref={ref} rotation={[0, 0, Math.PI / 4]} {...props}>
+     {React.createElement('group' as any, { ref, rotation: [0, 0, Math.PI / 4], ...props },
       <Points positions={sphere} stride={3} frustumCulled>
         <PointMaterial
           transparent
@@ -121,7 +120,7 @@ const StarBackground = (props: React.ComponentProps<'group'>) => {
           depthWrite={false}
         />
       </Points>
-    </group>
+    )}
     </>
     
     

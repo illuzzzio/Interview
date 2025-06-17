@@ -43,6 +43,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
+      console.log('Authform onSubmit called', { type, data });
       if (type === "sign-up") {
         const { name, email, password } = data;
 
@@ -61,10 +62,12 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
         if (!result.success) {
           toast.error(result.message);
+          console.log('Sign up failed:', result.message);
           return;
         }
 
         toast.success("Account created successfully. Please sign in.");
+        console.log('Sign up success, redirecting to /sign-in');
         router.push("/sign-in");
       } else {
         const { email, password } = data;
@@ -78,6 +81,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         const idToken = await userCredential.user.getIdToken();
         if (!idToken) {
           toast.error("Sign in Failed. Please try again.");
+          console.log('Sign in failed: No idToken');
           return;
         }
 
@@ -87,10 +91,11 @@ const AuthForm = ({ type }: { type: FormType }) => {
         });
 
         toast.success("Signed in successfully.");
+        console.log('Sign in success, redirecting to /');
         router.push("/");
       }
     } catch (error) {
-      console.log(error);
+      console.log('Authform onSubmit error:', error);
       toast.error(`There was an error: ${error}`);
     }
   };
