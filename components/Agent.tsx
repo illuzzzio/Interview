@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { interviewer } from "@/constants";
 import { createFeedback } from "@/lib/actions/general.action";
+import { useInterview } from "@/lib/interview-context";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -31,6 +32,7 @@ const Agent = ({
   questions,
 }: AgentProps) => {
   const router = useRouter();
+  const { setIsInterviewActive } = useInterview();
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -42,10 +44,12 @@ const Agent = ({
   useEffect(() => {
     const onCallStart = () => {
       setCallStatus(CallStatus.ACTIVE);
+      setIsInterviewActive(true);
     };
 
     const onCallEnd = () => {
       setCallStatus(CallStatus.FINISHED);
+      setIsInterviewActive(false);
     };
 
     const onMessage = (message: Message) => {
@@ -66,7 +70,10 @@ const Agent = ({
     };
 
     const onError = (error: Error) => {
-      console.log("Error:", error);
+      console.error("VAPI Error in Agent component:", error);
+      setError(`VAPI Error: ${error.message}`);
+      setCallStatus(CallStatus.INACTIVE);
+      setIsInterviewActive(false);
     };
 
     vapi.on("call-start", onCallStart);
@@ -83,8 +90,9 @@ const Agent = ({
       vapi.off("speech-start", onSpeechStart);
       vapi.off("speech-end", onSpeechEnd);
       vapi.off("error", onError);
+      setIsInterviewActive(false);
     };
-  }, []);
+  }, [setIsInterviewActive]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -122,6 +130,14 @@ const Agent = ({
   const handleCall = async () => {
     setError(null);
     setStartLoading(true);
+    
+    // Check if VAPI token is available
+    if (!process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN) {
+      setError("VAPI configuration is missing. Please check your environment variables.");
+      setStartLoading(false);
+      return;
+    }
+    
     // Check and deduct credits before starting interview
     try {
       const res = await fetch("/api/interview/start", { method: "POST" });
@@ -134,39 +150,55 @@ const Agent = ({
         setStartLoading(false);
         return;
       }
-    } catch {
+    } catch (error) {
+      console.error("Error starting interview:", error);
       setError("Failed to start interview. Please try again.");
       setStartLoading(false);
       return;
     }
+    
     setStartLoading(false);
     setCallStatus(CallStatus.CONNECTING);
 
-    if (type === "generate") {
-      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-        variableValues: {
-          username: userName,
-          userid: userId,
-        },
-      });
-    } else {
-      let formattedQuestions = "";
-      if (questions) {
-        formattedQuestions = questions
-          .map((question) => `- ${question}`)
-          .join("\n");
-      }
+    try {
+      if (type === "generate") {
+        if (!process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID) {
+          setError("VAPI Workflow ID is not configured. Please check your environment variables.");
+          return;
+        }
+        
+        console.log("Starting VAPI call with workflow ID:", process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID);
+        await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID, {
+          variableValues: {
+            username: userName,
+            userid: userId,
+          },
+        });
+      } else {
+        let formattedQuestions = "";
+        if (questions) {
+          formattedQuestions = questions
+            .map((question) => `- ${question}`)
+            .join("\n");
+        }
 
-      await vapi.start(interviewer, {
-        variableValues: {
-          questions: formattedQuestions,
-        },
-      });
+        console.log("Starting VAPI call with interviewer assistant");
+        await vapi.start(interviewer, {
+          variableValues: {
+            questions: formattedQuestions,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("VAPI start error:", error);
+      setError(`Failed to start VAPI call: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setCallStatus(CallStatus.INACTIVE);
     }
   };
 
   const handleDisconnect = () => {
     setCallStatus(CallStatus.FINISHED);
+    setIsInterviewActive(false);
     vapi.stop();
   };
 

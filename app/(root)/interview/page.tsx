@@ -13,10 +13,18 @@ const page = async  () => {
   // For demo, set interviewType and level. Later, set dynamically from user input or Vapi.
   const interviewType = 'Behavioral';
   const level = 'Junior';
+  
   return (
    <>
    <h3>Interview Generator</h3>
-   <Agent userName={user?.name ?? ""} userId={user?.id} interviewId={interviewId} type="generate" interviewType={interviewType} level={level} />
+   <Agent 
+     userName={user?.name ?? ""} 
+     userId={user?.id} 
+     interviewId={interviewId} 
+     type="generate" 
+     interviewType={interviewType} 
+     level={level}
+   />
    </>
   )
 }
