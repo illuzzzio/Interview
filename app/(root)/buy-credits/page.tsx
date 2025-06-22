@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 
 const creditPacks = [
   { credits: 10, price: 19 },
-  { credits: 100, price: 99 },
-  { credits: 300, price: 199 },
-  { credits: 1000, price: 599 },
+  { credits: 100, price: 199 },
+  { credits: 300, price: 499 },
+  { credits: 1000, price: 799 },
 ];
 
 // Razorpay script loader
