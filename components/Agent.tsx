@@ -253,9 +253,19 @@ const Agent = ({
 
       <div className="w-full flex justify-center">
         {callStatus !== "ACTIVE" ? (
-          <button className="relative btn-call" onClick={() => handleCall()} disabled={startLoading || feedbackLoading}>
-            {startLoading ? "Starting..." : feedbackLoading ? "Generating Feedback..." : "Start Interview"}
-          </button>
+          <>
+            <button
+              className="relative btn-call"
+              onClick={() => handleCall()}
+              disabled={startLoading || feedbackLoading || callStatus === CallStatus.CONNECTING}
+            >
+              {startLoading || callStatus === CallStatus.CONNECTING
+                ? "Wait for interview to come and please don't click on the start button again"
+                : feedbackLoading
+                ? "Generating Feedback..."
+                : "Start Interview"}
+            </button>
+          </>
         ) : (
           <button className="relative btn-call bg-red-500 hover:bg-red-600" onClick={handleDisconnect}>
             End Interview

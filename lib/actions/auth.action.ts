@@ -41,7 +41,7 @@ export async function signup(params: SignUpParams) {
     await db.collection("users").doc(uid).set({
       name,
       email,
-      credits: 20, // Default credits for new users
+      credits: 10, // Default credits for new users
       // profileURL,
       // resumeURL,
     });
