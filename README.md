@@ -1,11 +1,9 @@
-
 # 🚀 Ezzhire - Professional Interview Experience Platform
 
 [![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000?style=for-the-badge&logo=vercel)](https://vercel.com/) 
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/) 
 [![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/) 
-[![Razorpay](https://img.shields.io/badge/Razorpay-0080FF?style=for-the-badge&logo=razorpay&logoColor=white)](https://razorpay.com/) 
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Razorpay](https://img.shields.io/badge/Razorpay-0080FF?style=for-the-badge&logo=razorpay&logoColor=white)](https://razorpay.com/)
 
 ---
 
@@ -91,3 +89,6 @@ Open http://localhost:3000 in your browser.
 🤝 Contributing
 
 We love contributions! Please fork the repo and submit PRs for any bug fixes or features.
+📞 Contact
+
+Questions? Feedback? Open an issue or reach out to the maintainer.
